@@ -7,7 +7,7 @@ let seguirComprando = true;
 let total = 0;
 let pregunta;
 
-const producto = []
+const producto = [];
 
 class NewProduct {
   constructor(id, name, price, size) {
@@ -27,9 +27,14 @@ producto.push(buzo);
 const campera = new NewProduct(4, "campera", 1000, "L");
 producto.push(campera);
 
+const carrito = [];
 while (seguirComprando === true) {
 
-total = total + producto[ropa-1].price;
+  const articulo = producto.find((prod) => prod.id === ropa);
+
+  if (articulo) {
+    carrito.push(articulo);
+  }
 
   pregunta = parseInt(prompt("Quieres seguir comprando? 1.Si - 2.No"));
   if (pregunta === 1) {
@@ -43,7 +48,10 @@ total = total + producto[ropa-1].price;
   }
 }
 
-let compraConDescuento = descuento(total);
+total = carrito.map(articulo => articulo.price).reduce((a, b) => a + b);
+console.log(carrito);
+/*alert(`El total de tu compra es ${total}`)*/
+const compraConDescuento = descuento(total);
 alert(`El total de tu compra es ${compraConDescuento}`);
 
 function descuento(valor) {
