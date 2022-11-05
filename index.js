@@ -50,7 +50,6 @@ while (seguirComprando === true) {
 
 total = carrito.map(articulo => articulo.price).reduce((a, b) => a + b);
 console.log(carrito);
-/*alert(`El total de tu compra es ${total}`)*/
 const compraConDescuento = descuento(total);
 alert(`El total de tu compra es ${compraConDescuento}`);
 
