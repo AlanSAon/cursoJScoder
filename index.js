@@ -1,69 +1,82 @@
-let ropa = parseInt(
-  prompt(
-    "Elegi que te gustaria comprar? 1.remera - 2.bermuda - 3.buzo - 4.campera"
-  )
-);
-let seguirComprando = true;
-let total = 0;
-let pregunta;
+// clase producto
 
-const producto = [];
-
-class NewProduct {
-  constructor(id, name, price, size) {
+class Producto {
+  constructor(id, nombre, precio, talle, imagen) {
     this.id = id;
-    this.name = name;
-    this.price = price;
-    this.size = size;
+    this.nombre = nombre;
+    this.precio = precio;
+    this.talle = talle;
+    this.imagen = imagen;
   }
 }
 
-const remera = new NewProduct(1, "remera", 700, "L");
-producto.push(remera);
-const bermuda = new NewProduct(2, "bermuda", 600, "L");
-producto.push(bermuda);
-const buzo = new NewProduct(3, "buzo", 800, "L");
-producto.push(buzo);
-const campera = new NewProduct(4, "campera", 1000, "L");
-producto.push(campera);
+// Productos
+const producto1 = new Producto(1, "Remera", 700, "L", "img/fotoRemera.jpg");
+const producto2 = new Producto(2, "Bermuda", 600, "L", "img/fotoBermuda.jpg");
+const producto3 = new Producto(3, "Buzo", 800, "L", "img/fotoBuzo.jpg");
+const producto4 = new Producto(4, "Campera", 1000, "L", "img/fotoCampera.jpg");
+const producto5 = new Producto(5, "Pantalon", 850, "L", "img/fotoPantalon.jpg");
 
-const carrito = [];
-while (seguirComprando === true) {
+// Arreglo de productos
+const productosArray = [producto1, producto2, producto3, producto4, producto5];
 
-  const articulo = producto.find((prod) => prod.id === ropa);
+// Buscar elementos en el DOM
 
-  if (articulo) {
-    carrito.push(articulo);
-  }
+const divProductos = document.querySelector("#divProductos");
 
-  pregunta = parseInt(prompt("Quieres seguir comprando? 1.Si - 2.No"));
-  if (pregunta === 1) {
-    ropa = parseInt(
-      prompt(
-        "Elegi que te gustaria comprar? 1.remera - 2.bermuda - 3.buzo - 4.campera"
-      )
+productosArray.forEach((producto) => {
+  divProductos.innerHTML += `
+    <div id="${producto.id}" class="card cardProducto">
+    <img src="${producto.imagen}" class="card-img-top">
+    <div class="card-body">
+    <h5 class="card-title">${producto.nombre}</h5>
+    <p class="card-text">$${producto.precio}</p>
+    <button id="${producto.id}" class="btn btn-primary">AGREGAR AL CARRITO</button>
+    </div>
+    </div>
+    `;
+});
+
+// Carrito de compra
+
+
+const botonesAgregar = document.querySelectorAll(".btn-primary");
+
+botonesAgregar.forEach((boton) => {
+  boton.onclick = () => {
+    const producto = productosArray.find(
+      (prod) => prod.id === parseInt(boton.id)
     );
-  } else {
-    seguirComprando = false;
-  }
-}
 
-total = carrito.map(articulo => articulo.price).reduce((a, b) => a + b);
-console.log(carrito);
-const compraConDescuento = descuento(total);
-alert(`El total de tu compra es ${compraConDescuento}`);
+    const productoCarrito = {
+      id: producto.id,
+      nombre: producto.nombre,
+      precio: producto.precio,
+      cantidad: 1,
+    };
+    saveLocal();
+    const indexCarrito = carrito.findIndex((prod) => prod.id === producto.id);
 
-function descuento(valor) {
-  let descuento = 0;
-  if (valor <= 900) {
-    descuento = 5;
-  } else if (valor > 900 && valor <= 2000) {
-    descuento = 10;
-  } else {
-    descuento = 15;
-  }
+    if (indexCarrito === -1) {
+      carrito.push(productoCarrito);
+    } else {
+      carrito[indexCarrito].cantidad += 1;
+    }
+    console.log(carrito);
+  };
+});
 
-  let valorDescuento = valor * (descuento / 100);
-  let valorFinal = valor - valorDescuento;
-  return valorFinal;
-}
+// Finalizar compra
+
+const botonFinalizar = document.querySelector("#finalizar");
+botonFinalizar.onclick = () => {
+  const totalCompra = carrito
+    .map((prod) => prod.precio * prod.cantidad)
+    .reduce((elem1, elem2) => elem1 + elem2);
+  alert(`El total de tu compra es ${totalCompra}`);
+};
+
+const saveLocal = () => {
+  localStorage.setItem("carrito", JSON.stringify(carrito));
+};
+const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
