@@ -39,7 +39,7 @@ productosArray.forEach((producto) => {
 
 // Carrito de compra
 
-
+const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 const botonesAgregar = document.querySelectorAll(".btn-primary");
 
 botonesAgregar.forEach((boton) => {
@@ -54,14 +54,13 @@ botonesAgregar.forEach((boton) => {
       precio: producto.precio,
       cantidad: 1,
     };
-    saveLocal();
     const indexCarrito = carrito.findIndex((prod) => prod.id === producto.id);
-
     if (indexCarrito === -1) {
       carrito.push(productoCarrito);
     } else {
       carrito[indexCarrito].cantidad += 1;
     }
+    saveLocal();
     console.log(carrito);
   };
 });
@@ -73,10 +72,10 @@ botonFinalizar.onclick = () => {
   const totalCompra = carrito
     .map((prod) => prod.precio * prod.cantidad)
     .reduce((elem1, elem2) => elem1 + elem2);
-  alert(`El total de tu compra es ${totalCompra}`);
+    console.log(totalCompra);
 };
 
 const saveLocal = () => {
   localStorage.setItem("carrito", JSON.stringify(carrito));
 };
-const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
