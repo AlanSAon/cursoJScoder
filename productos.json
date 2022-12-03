@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "nombre": "Remera",
+        "precio": 700,
+        "talle": "L",
+        "categoria": "Remeras",
+        "imagen": "img/fotoRemera.jpg"
+    },
+    {
+        "id": 2,
+        "nombre": "Bermuda",
+        "precio": 600,
+        "talle": "L",
+        "categoria": "Bermudas",
+        "imagen": "img/fotoBermuda.jpg"
+    },
+    {
+        "id": 3,
+        "nombre": "Buzo",
+        "precio": 800,
+        "talle": "L",
+        "categoria": "Buzos",
+        "imagen": "img/fotoBuzo.jpg"
+    },
+    {
+        "id": 4,
+        "nombre": "Campera",
+        "precio": 1000,
+        "talle": "L",
+        "categoria": "Camperas",
+        "imagen": "img/fotoCampera.jpg"
+    },
+    {
+        "id": 5,
+        "nombre": "Pantalon",
+        "precio": 850,
+        "talle": "L",
+        "categoria": "Pantalones",
+        "imagen": "img/fotoPantalon.jpg"
+    }
+]
