@@ -38,13 +38,11 @@ const buscarTodosProductos = async () => {
       const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
       const botonesAgregar = document.querySelectorAll(".btn-primary");
 
- botonesAgregar.forEach((boton) => {
-   boton.onclick = async () => {
-    const productosFetch = await fetch("productos.json");
-    const productosJson = await productosFetch.json();
-    const producto = productosJson.find(
-      (prod) => prod.id === parseInt(boton.id)
-    );
+ //botonesAgregar.forEach((boton) => {
+   //boton.onclick =  () => {
+    //const producto = productosJson.find(
+    //  (prod) => prod.id === parseInt(boton.id)
+//);
 
     const productoCarrito = {
       id: producto.id,
@@ -60,8 +58,8 @@ const buscarTodosProductos = async () => {
     }
     saveLocal();
     console.log(carrito);
-  };
-});
+  //};
+//});
 
 //  Finalizar compra
 
