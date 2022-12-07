@@ -1,103 +1,133 @@
-const divCards = document.querySelector(".cards");
-const lista = document.querySelector("#lista");
-const botonSeleccionar = document.querySelector("#seleccionar");
 
-const mostrarCategorias = async () => {
-  const categoriasFetch = await fetch("categorias.json");
-  const categoriasJson = await categoriasFetch.json();
-  console.log(categoriasJson);
-  categoriasJson.forEach((cat) => {
-    const option = document.createElement("option");
-    option.innerText = `${cat}`;
-    lista.append(option);
-  });
-};
+const cards = document.getElementById('cards');
+const items = document.getElementById('items');
+const footer = document.getElementById('footer');
+const templateCard = document.getElementById('template-card').content;
+const templateFooter = document.getElementById('template-footer').content;
+const templateCarrito = document.getElementById('template-carrito').content
+const fragment = document.createDocumentFragment();
+let carrito = {};
+const procesarCompra = document.querySelector('#procesarCompra');
 
-const buscarTodosProductos = async () => {
-  const productosFetch = await fetch("productos.json");
+document.addEventListener('DOMContentLoaded', () => {
+  productosFetch();
+  if (localStorage.getItem('carrito')) {
+    carrito = JSON.parse(localStorage.getItem('carrito'));
+    pintarCarrito();
+  }
+})
+cards.addEventListener('click', e => {
+  addCarrito(e);
+})
+
+items.addEventListener('click', e => {
+  btnAccion(e);
+} )
+
+const productosFetch = async () => {
+  const productosFetch = await fetch('productos.json');
   const productosJson = await productosFetch.json();
-  productosJson.forEach((prod) => {
-    const { categoria, id, imagen, nombre, precio, talle } = prod;
-    divCards.innerHTML += `
-       <div id="${id}" class="card cardProducto">
-      <img src="${imagen}" class="card-img-top">
-      <div class="card-body">
-      <h5 class="card-title">${nombre}</h5>
-    <p class="card-text">$${precio}</p>
-    <p class="card-text">${talle}</p>
-    <button id="${id}" class="btn btn-primary">AGREGAR AL CARRITO</button>
-    </div>
-    </div>
-    `;
-  });
-  productosJson.forEach((prod) => {
-    const boton = document.getElementById(prod.id)
-    boton.addEventListener("click", (e) => {
-      console.log(e.target.id)
+  pintarCards(productosJson);
+}
 
-      const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
-      const botonesAgregar = document.querySelectorAll(".btn-primary");
-
- //botonesAgregar.forEach((boton) => {
-   //boton.onclick =  () => {
-    //const producto = productosJson.find(
-    //  (prod) => prod.id === parseInt(boton.id)
-//);
-
-    const productoCarrito = {
-      id: producto.id,
-      nombre: producto.nombre,
-      precio: producto.precio,
-      cantidad: 1,
-    };
-    const indexCarrito = carrito.findIndex((prod) => prod.id === producto.id);
-    if (indexCarrito === -1) {
-      carrito.push(productoCarrito);
-    } else {
-      carrito[indexCarrito].cantidad += 1;
-    }
-    saveLocal();
-    console.log(carrito);
-  //};
-//});
-
-//  Finalizar compra
-
- const botonFinalizar = document.querySelector("#finalizar");
- botonFinalizar.onclick = () => {
-   const totalCompra = carrito.map((prod) => prod.precio * prod.cantidad).reduce((elem1, elem2) => elem1 + elem2,);
-   console.log(totalCompra)
-};
-
- const saveLocal = () => {
-  localStorage.setItem("carrito", JSON.stringify(carrito));
-};
-    })
+const pintarCards = productosJson => {
+  productosJson.forEach(producto => {
+    templateCard.querySelector('h5').textContent = producto.nombre;
+    templateCard.querySelector('p').textContent = producto.precio;
+    templateCard.querySelector('img').setAttribute("src", producto.imagen);
+    templateCard.querySelector('.btn-dark').dataset.id = producto.id;
+    const clone = templateCard.cloneNode(true);
+    fragment.appendChild(clone);
   })
-};
+  cards.appendChild(fragment);
+}
 
-const buscarProductosPorCategoria = async () => {
-    divCards.innerHTML = "";
-  const categoriaElegida = lista.value;
-  const productosFetch = await fetch("productos.json");
-  const productosJson = await productosFetch.json();
-  const productosFiltrados = productosJson.filter(prod=>prod.categoria===categoriaElegida)
-  productosFiltrados.forEach((prod) => {
-    const { categoria, id, imagen, nombre, precio, talle } = prod;
-    divCards.innerHTML += `
-      <div id="${id}" class="card cardProducto">
-      <img src="${imagen}" class="card-img-top">
-      <div class="card-body">
-      <h5 class="card-title">${nombre}</h5>
-    <p class="card-text">$${precio}</p>
-    <p class="card-text">${talle}</p>
-    <button id="${id}" class="btn btn-primary">AGREGAR AL CARRITO</button>
-    </div>
-    </div>
-    `;
-  });
-};
-buscarTodosProductos();
-mostrarCategorias();
+const addCarrito = e => {
+  if (e.target.classList.contains('btn-dark')) {
+    setCarrito(e.target.parentElement);
+  }
+  e.stopPropagation();
+}
 
-botonSeleccionar.onclick = buscarProductosPorCategoria;
+const setCarrito = objeto => {
+  const producto = {
+    id: objeto.querySelector('.btn-dark').dataset.id,
+    nombre: objeto.querySelector('h5').textContent,
+    precio: objeto.querySelector('p').textContent,
+    cantidad: 1,
+  }
+
+  if (carrito.hasOwnProperty(producto.id)){
+    producto.cantidad = carrito[producto.id].cantidad + 1;
+  }
+
+  carrito[producto.id] = {...producto};
+  pintarCarrito();
+}
+
+const pintarCarrito = () => {
+  items.innerHTML = '';
+  Object.values(carrito).forEach(producto => {
+    templateCarrito.querySelector('th').textContent = producto.id;
+    templateCarrito.querySelectorAll('td')[0].textContent = producto.nombre;
+    templateCarrito.querySelectorAll('td')[1].textContent = producto.cantidad;
+    templateCarrito.querySelector('.btn-info').dataset.id = producto.id;
+    templateCarrito.querySelector('.btn-danger').dataset.id = producto.id;
+    templateCarrito.querySelector('span').textContent = producto.cantidad * producto.precio;
+    const clone = templateCarrito.cloneNode(true);
+    fragment.appendChild(clone);
+  })
+  items.appendChild(fragment);
+
+  pintarFooter();
+
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+}
+
+const pintarFooter = () => {
+  footer.innerHTML = '';
+  if (Object.keys(carrito).length === 0) {
+    footer.innerHTML = `
+    <th scope="row" colspan="5">Carrito vacío - comience a comprar!</th>;
+    `
+    return;
+  }
+
+  const nCantidad = Object.values(carrito).reduce((acc, {cantidad}) => acc + cantidad,0);
+  const nPrecio = Object.values(carrito).reduce((acc, {cantidad, precio}) => acc + cantidad * precio ,0);
+
+  templateFooter.querySelectorAll('td')[0].textContent = nCantidad;
+  templateFooter.querySelector('span').textContent = nPrecio;
+  const clone = templateFooter.cloneNode(true);
+  fragment.appendChild(clone);
+  footer.appendChild(fragment);
+
+  const btnVaciar = document.getElementById('vaciar-carrito');
+  btnVaciar.addEventListener('click', () => {
+    carrito = {};
+    pintarCarrito();
+  })
+}
+
+const btnAccion = e => {
+  if (e.target.classList.contains('btn-info')) {
+    const producto = carrito[e.target.dataset.id];
+    producto.cantidad++;
+    carrito[e.target.dataset.id] = {...producto};
+    pintarCarrito();
+  }
+  if (e.target.classList.contains('btn-danger')) {;
+    const producto = carrito[e.target.dataset.id];
+    producto.cantidad--;
+    if (producto.cantidad === 0) {
+      delete carrito[e.target.dataset.id];
+    }
+    pintarCarrito();
+  }
+  e.stopPropagation();
+}
+
+procesarCompra.addEventListener('click', () => {
+  Swal.fire('¡Muchas gracias por su compra!');
+});
+
